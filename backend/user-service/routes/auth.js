@@ -1,9 +1,9 @@
-const express = require("express");
+const express = require('express');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 const db = require("../models");
-
+const authenticateUser = require("../middleware/authMiddleware");
 const router = express.Router();
 
 const JWT_SECRET = "f4d16fd7"; // Change this to a strong secret in production
@@ -103,5 +103,73 @@ router.post(
     }
   }
 );
+
+// 
+
+router.get("/profile", authenticateUser, async (req, res) => {
+  try {
+    const user = await db.User.findByPk(req.user.id, {
+      attributes: ["id", "name", "email", "createdAt"]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    console.error("❌ Profile Fetch Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+router.delete("/profile", authenticateUser, async (req, res) => {
+  try {
+    const user = await db.User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await user.destroy();
+
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("❌ Account Deletion Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.patch("/profile", authenticateUser, async (req, res) => {
+  console.log("🔄 Received Update Request:", req.body);
+  console.log("🔑 Authenticated User ID:", req.user);
+
+  try {
+    const { name, email, password } = req.body;
+    
+    const user = await db.User.findByPk(req.user.id);
+    console.log("👤 Found User:", user ? user.dataValues : "Not Found");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (password) {
+      console.log("🔐 Hashing New Password...");
+      user.password = await bcrypt.hash(password, 10);
+    }
+
+    await user.save();
+    console.log("✅ Profile Updated Successfully");
+
+    res.json({ message: "Profile updated successfully", user });
+  } catch (error) {
+    console.error("❌ Profile Update Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
 
 module.exports = router;
