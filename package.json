@@ -16,5 +16,8 @@
     "url": "https://github.com/MuhammadRafay1/CS4067-Assgt-EventBooking-i220948-MuhammadRafay-repo/issues"
   },
   "homepage": "https://github.com/MuhammadRafay1/CS4067-Assgt-EventBooking-i220948-MuhammadRafay-repo#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "devop-assignment": "file:"
+  }
 }
