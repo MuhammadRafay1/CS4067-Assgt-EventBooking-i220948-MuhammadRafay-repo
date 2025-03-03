@@ -1,9 +1,13 @@
 {
-  "name": "devop-assignment",
+  "name": "event-booking-platform",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "frontend": "cd frontend && npm run dev",
+    "backend:user": "cd backend/user-service && npm start",
+    "backend:booking": "cd backend/booking-service && call venv\\Scripts\\activate && uvicorn main:app --host 0.0.0.0 --port 4003 --reload",
+    "backend:event": "cd backend/event-service && npm start",
+    "backend:notification": "cd backend/notification-service && node server.js",
+    "dev": "concurrently \"npm run backend:user\" \"npm run backend:booking\" \"npm run backend:event\" \"npm run backend:notification\" \"npm run frontend\""
   },
   "repository": {
     "type": "git",
@@ -17,7 +21,10 @@
   },
   "homepage": "https://github.com/MuhammadRafay1/CS4067-Assgt-EventBooking-i220948-MuhammadRafay-repo#readme",
   "description": "",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
   "dependencies": {
-    "devop-assignment": "file:"
+    "event-booking-platform": "file:"
   }
 }

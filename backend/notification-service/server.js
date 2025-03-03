@@ -5,7 +5,13 @@ const cors = require("cors");
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000", // Allow frontend URL
+  credentials: true, // Allow cookies and auth headers
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type,Authorization"
+}));
+//app.use(cors());
 
 // Configure email transport
 const transporter = nodemailer.createTransport({

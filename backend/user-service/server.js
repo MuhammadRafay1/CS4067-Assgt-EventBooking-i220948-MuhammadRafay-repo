@@ -5,6 +5,13 @@ const authRoutes = require("./routes/auth");  // ✅ Make sure this line exists
 
 const app = express();
 app.use(express.json());
+const cors = require("cors");
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000", // Allow frontend URL
+  credentials: true, // Allow cookies and auth headers
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type,Authorization"
+}));
 
 const PORT = process.env.PORT || 4001;
 

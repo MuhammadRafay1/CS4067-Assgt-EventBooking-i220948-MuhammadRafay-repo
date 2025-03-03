@@ -25,16 +25,13 @@ async def check_event_exists(event_id: int):
 
 @router.post("/bookings/")
 def create_booking(request: BookingRequest, db: Session = Depends(get_db), user_id: int = Depends(authenticate_user)):
-    # 🔍 Check if event exists (already implemented)
     event_data = check_event_exists(request.event_id)
 
-    # ✅ Create the booking
     new_booking = Booking(user_id=user_id, event_id=request.event_id, tickets=request.tickets)
     db.add(new_booking)
     db.commit()
     db.refresh(new_booking)
 
-    # 📩 Send Notification
     user_email = "user@example.com"  # Fetch this from the User Service
     requests.post(NOTIFICATION_SERVICE_URL, json={
         "user_id": user_id,

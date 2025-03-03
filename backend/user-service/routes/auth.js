@@ -47,7 +47,16 @@ router.post(
       const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: "1h" });
 
       console.log("🔑 Generated Token:", token);
-      res.status(201).json({ message: "User registered successfully", token });
+      const userData = {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      };
+      res.status(201).json({ 
+        message: "User registered successfully", 
+        token,
+        user: userData 
+      });
     } catch (error) {
       console.error("❌ Registration Error:", error);
       res.status(500).json({ message: "Server error", error: error.message });
@@ -96,7 +105,17 @@ router.post(
       const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
       console.log("🔑 Generated Token:", token);
 
-      res.status(200).json({ message: "Login successful", token });
+      const userData = {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      };
+
+      res.status(200).json({ 
+        message: "Login successful", 
+        token,
+        user: userData 
+      });
     } catch (error) {
       console.error("❌ Login Error:", error);
       res.status(500).json({ message: "Server error", error: error.message });
