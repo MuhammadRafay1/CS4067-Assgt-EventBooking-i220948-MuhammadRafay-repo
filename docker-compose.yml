@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: event_user
+      POSTGRES_PASSWORD: securepassword
+      POSTGRES_DB: event_booking
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U event_user -d event_booking"]
+      interval: 5s
+      timeout: 5s
+      retries: 5  
+
+  user-service:
+    build: ./backend/user-service
+    container_name: user-service
+    environment:
+      - DATABASE_URL=postgresql://event_user:securepassword@postgres:5432/event_booking
+    ports:
+      - "4001:4001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  event-service:
+    build: ./backend/event-service
+    container_name: event-service
+    environment:
+      - DATABASE_URL=postgresql://event_user:securepassword@postgres:5432/event_booking
+    ports:
+      - "4002:4002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  booking-service:
+    build: ./backend/booking-service
+    container_name: booking-service
+    environment:
+      - DATABASE_URL=postgresql://event_user:securepassword@postgres:5432/event_booking
+    ports:
+      - "4003:4003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  notification-service:
+    build: ./backend/notification-service
+    container_name: notification-service
+    environment:
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "4004:4004"
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - event-service
+      - booking-service
+      - notification-service
+
+volumes:
+  postgres_data:
